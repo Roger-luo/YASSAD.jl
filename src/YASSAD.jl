@@ -1,5 +1,7 @@
 module YASSAD
 
-greet() = print("Hello World!")
+include("utils.jl")
+include("compiler.jl")
+include("lib.jl")
 
 end # module
