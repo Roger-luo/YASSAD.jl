@@ -22,13 +22,13 @@ end
 Pullback{S}(data::T) where {S, T} = Pullback{S, T}(data)
 
 """
-    track(ir, F)
+    register(ir, F)
 
 This function will transform the original function call in the original IR `ir` to
 `forward` function calls. Besides the forward evaluation results, `forward` function
 will also return a pullback function (closure) for backward evaluation use.
 """
-function track(ir, F)
+function register(ir, F)
     pr = Pipe(ir)
     pbs = Dict{Variable, Variable}()
     argument!(pr, at = 1)
@@ -59,7 +59,7 @@ This is the entry of IR transformation.
     T = Tuple{f, xs...}
     m = IRTools.meta(T)
     m === nothing && return
-    frw, _ = track(IR(m), T)
+    frw, _ = register(IR(m), T)
     argnames!(m, Symbol("#self#"), :f, :xs)
     frw = varargs!(m, frw, 2)
     # frw = slots!(pis!(inlineable!(frw)))
@@ -109,7 +109,7 @@ our fake closure.
     m = IRTools.meta(S)
     m === nothing && return
     ir = IR(m)
-    _, pbs = track(ir, S)
+    _, pbs = register(ir, S)
     back = adjoint(ir, pbs)
     argnames!(m, Symbol("#self#"), :delta)
     return IRTools.update!(m, back)
